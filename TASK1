@@ -1,0 +1,107 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class app extends JFrame implements ActionListener {
+    // Components of the calculator
+    private JTextField display;
+    private JPanel panel;
+    private String[] buttons = {
+            "7", "8", "9", "/",
+            "4", "5", "6", "*",
+            "1", "2", "3", "-",
+            "0", ".", "=", "+"
+    };
+
+    private String currentInput = "";
+    private String operator = "";
+    private double firstOperand = 0;
+    private boolean isNewInput = true;
+
+    public app() {
+        // Create the frame
+        setTitle("Calculator");
+        setSize(300, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Create the display
+        display = new JTextField();
+        display.setEditable(false);
+        display.setFont(new Font("Arial", Font.PLAIN, 24));
+        add(display, BorderLayout.NORTH);
+
+        // Create the panel for buttons
+        panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 4));
+
+        // Add buttons to the panel
+        for (String buttonText : buttons) {
+            JButton button = new JButton(buttonText);
+            button.setFont(new Font("Arial", Font.PLAIN, 24));
+            button.addActionListener(this);
+            panel.add(button);
+        }
+
+        add(panel, BorderLayout.CENTER);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+
+        if ("0123456789.".contains(command)) {
+            if (isNewInput) {
+                currentInput = command;
+                isNewInput = false;
+            } else {
+                currentInput += command;
+            }
+            display.setText(currentInput);
+        } else if ("/*-+".contains(command)) {
+            if (!operator.isEmpty()) {
+                performCalculation();
+            } else {
+                firstOperand = Double.parseDouble(currentInput);
+            }
+            operator = command;
+            isNewInput = true;
+        } else if ("=".equals(command)) {
+            performCalculation();
+            operator = "";
+            isNewInput = true;
+        }
+    }
+
+    private void performCalculation() {
+        double secondOperand = Double.parseDouble(currentInput);
+        double result = 0;
+
+        switch (operator) {
+            case "/":
+                result = firstOperand / secondOperand;
+                break;
+            case "*":
+                result = firstOperand * secondOperand;
+                break;
+            case "-":
+                result = firstOperand - secondOperand;
+                break;
+            case "+":
+                result = firstOperand + secondOperand;
+                break;
+        }
+
+        display.setText(String.valueOf(result));
+        currentInput = String.valueOf(result);
+        firstOperand = result;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            app calculator = new app();
+            calculator.setVisible(true);
+        });
+    }
+}
